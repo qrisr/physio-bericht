@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // **🚀 Webhook-URL**
+    const WEBHOOK_URL = "https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae";
+
     // Webhook-Daten an N8N senden
     form.addEventListener("submit", function (event) {
         event.preventDefault();
@@ -67,63 +70,61 @@ document.addEventListener("DOMContentLoaded", function () {
         chatResponseContainer.classList.remove("hidden");
         chatResponse.innerHTML = "⏳ Antwort wird generiert...";
 
-        // **🚀 Production Webhook-URL**
-        fetchWithTimeout("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
+        // Anfrage an den Webhook senden
+        fetchWithTimeout(WEBHOOK_URL, { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         }, 60000)
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => { throw new Error(`Server Error ${response.status}: ${text}`) });
+                return response.text().then(text => { 
+                    console.error(`❌ Server Error ${response.status}:`, text);
+                    throw new Error(`Server Error ${response.status}: ${text}`);
+                });
             }
             return response.text(); // Erst als Text abrufen
         })
         .then(text => {
             try {
-                // **Prüfen, ob die Antwort JSON oder HTML ist**
                 if (text.startsWith("<")) {
-                    throw new Error("Server hat eine HTML-Antwort gesendet, statt JSON.");
+                    throw new Error("❌ Fehler: N8N hat HTML statt JSON zurückgegeben.");
                 }
-
                 const data = JSON.parse(text); // JSON umwandeln
-                console.log("Antwort von N8N:", data);
+                console.log("✅ Antwort von N8N:", data);
 
-                // 🔹 Daten aus der Antwort extrahieren, falls sie verschachtelt sind
-                let report = data.content || data.analyse || data.ergebnis; 
+                // **💡 Falls "Abschlussanalyse" existiert, dort suchen**
+                let report = data.content?.Abschlussanalyse || data.content;  
 
                 if (report) {
                     let analysisHTML = `
-                        <h3>Abschlussanalyse</h3>
-                        <p><strong>Ziel:</strong> ${report.ziel_uebersicht?.ziel || "N/A"}</p>
-                        <p><strong>Compliance:</strong> ${report.ziel_uebersicht?.compliance || "N/A"}</p>
-                        <p><strong>Zielbeschreibung:</strong> ${report.ziel_uebersicht?.zielbeschreibung || "N/A"}</p>
-                        <p><strong>Hypothese:</strong> ${report.ziel_uebersicht?.hypothese || "N/A"}</p>
-                        <p><strong>Begründung:</strong> ${report.ziel_uebersicht?.begruendung || "N/A"}</p>
-                        <h3>Analyse</h3>
-                        <p><strong>Ergebnis:</strong> ${report.ergebnis?.status || "N/A"}</p>
-                        <p><strong>Analyse:</strong> ${report.analyse?.analyse || "N/A"}</p>
-                        <p><strong>Schlussfolgerung:</strong> ${report.analyse?.schlussfolgerung || "N/A"}</p>
-                        <h3>Empfehlungen</h3>
-                        <p><strong>Allgemein:</strong> ${report.empfehlungen?.allgemein || "N/A"}</p>
-                        <p><strong>Spezifisch:</strong> ${report.empfehlungen?.spezifisch || "N/A"}</p>
+                        <h3>📊 Abschlussanalyse</h3>
+                        <p><strong>Ziel:</strong> ${report.Ziel || "N/A"}</p>
+                        <p><strong>Zielbeschreibung:</strong> ${report.Zielbeschreibung || "N/A"}</p>
+                        <p><strong>Ergebnis:</strong> ${report.Ergebnis || "N/A"}</p>
+                        <h3>🔎 Analyse</h3>
+                        <p><strong>Hypothese:</strong> ${report.Analyse?.Hypothese || "N/A"}</p>
+                        <p><strong>Compliance:</strong> ${report.Analyse?.Compliance || "N/A"}</p>
+                        <p><strong>Bewertung:</strong> ${report.Analyse?.Bewertung || "N/A"}</p>
+                        <p><strong>Status:</strong> ${report.Analyse?.Status || "N/A"}</p>
+                        <h3>📝 Schlussfolgerung</h3>
+                        <p>${report.Schlussempfehlung?.Verbesserungsvorschläge || "Keine Empfehlungen"}</p>
                     `;
 
                     chatResponse.innerHTML = analysisHTML;
                     statusMessage.textContent = "✅ Antwort erhalten!";
                 } else {
-                    throw new Error("Leere oder ungültige Antwort erhalten.");
+                    throw new Error("❌ Fehler: Leere oder ungültige JSON-Antwort.");
                 }
             } catch (error) {
-                throw new Error("Ungültige JSON-Antwort: " + text);
+                throw new Error("❌ Fehlerhafte JSON-Antwort: " + text);
             }
         })
         .catch(error => {
+            console.error("🚨 Fehler-Details:", error);
             submitButton.style.backgroundColor = "#dc3545"; // Rot bei Fehler
             statusMessage.textContent = "❌ Fehler beim Senden der Anfrage!";
-            statusMessage.style.color = "red";
             chatResponse.innerHTML = "⚠️ Fehler beim Laden der Antwort.";
-            console.error("Fehler-Details:", error);
         });
     });
 
