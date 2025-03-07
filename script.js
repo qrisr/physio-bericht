@@ -1,78 +1,83 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Datum vorausfüllen
-    const today = new Date();
-    const formattedDate = today.toISOString().slice(0, 10);
-    document.getElementById("datum").value = formattedDate;
-
     const form = document.getElementById("abschlussbericht-form");
-    const zielField = document.getElementById("ziel");
-    const complianceField = document.getElementById("compliance");
-    const begruendungField = document.getElementById("begruendung-container");
-    const responseContainer = document.getElementById("response-container");
-    const responseText = document.getElementById("response-text");
-    const statusMessage = document.getElementById("status-message");
     const submitButton = document.getElementById("submit-button");
-
-    // Ziel-Änderung überwachen
-    zielField.addEventListener("change", function () {
-        if (zielField.value === "Ziel nicht erreicht") {
-            begruendungField.style.display = "block";
-        } else {
-            begruendungField.style.display = "none";
-        }
-    });
+    const statusMessage = document.getElementById("status-message");
 
     form.addEventListener("submit", async function (event) {
         event.preventDefault();
-
-        // Button-Status anpassen
         submitButton.disabled = true;
-        submitButton.style.backgroundColor = "#0056b3";
+        submitButton.innerText = "⏳ Wird gesendet...";
         statusMessage.innerHTML = "⏳ Anfrage wurde gesendet. Bitte warten...";
+        statusMessage.style.color = "black";
 
-        // Formulardaten erfassen
+        // Formulardaten sammeln
         const formData = {
             datum: document.getElementById("datum").value,
-            ziel: zielField.value,
-            compliance: complianceField.value,
+            ziel: document.getElementById("ziel").value,
+            compliance: document.getElementById("compliance").value,
             ziel_text: document.getElementById("ziel-text").value,
             hypothese: document.getElementById("hypothese").value,
-            begruendung: document.getElementById("begruendung").value || null
+            begruendung: document.getElementById("begruendung")?.value || null
         };
 
         try {
-            const response = await fetch("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", {
+            const response = await fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             });
 
             if (!response.ok) {
-                throw new Error(`Fehler beim Senden der Anfrage! Status: ${response.status}`);
+                throw new Error(`Fehler beim Senden! Status: ${response.status}`);
             }
 
             const responseData = await response.json();
 
-            // Antwort anzeigen
-            responseContainer.style.display = "block";
-            responseText.innerHTML = `<strong>Automatisch generierte Analyse:</strong><br>${responseData.content || "Keine Antwort erhalten."}`;
+            if (!responseData || !responseData.content) {
+                throw new Error("Ungültige Antwort erhalten.");
+            }
 
-            // Erfolgreiche Statusmeldung
-            statusMessage.innerHTML = "✅ Antwort erfolgreich empfangen!";
+            // **Antwort erhalten – jetzt Pop-up öffnen**
+            const resultWindow = window.open("", "_blank", "width=600,height=400");
+            resultWindow.document.write(`
+                <html>
+                <head>
+                    <title>Analyse</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h2 { color: #333; }
+                        p { font-size: 16px; line-height: 1.5; }
+                        button { 
+                            background-color: #007bff; 
+                            color: white; 
+                            border: none; 
+                            padding: 10px 15px; 
+                            cursor: pointer; 
+                            margin-top: 20px; 
+                        }
+                        button:hover { background-color: #0056b3; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Automatisch generierte Analyse</h2>
+                    <p>${responseData.content || "Keine Antwort erhalten."}</p>
+                    <button onclick="window.close()">Schliessen</button>
+                </body>
+                </html>
+            `);
+
+            // Statusmeldung aktualisieren
+            statusMessage.innerHTML = "✅ Ergebnis in neuem Fenster!";
             statusMessage.style.color = "green";
 
         } catch (error) {
-            console.error("Fehler beim Verarbeiten der Antwort:", error);
-            responseContainer.style.display = "block";
-            responseText.innerHTML = "⚠️ Fehler beim Laden der Antwort.";
-            statusMessage.innerHTML = "❌ Fehler beim Senden der Anfrage!";
+            console.error("Fehler:", error);
+            statusMessage.innerHTML = "❌ Fehler beim Senden!";
             statusMessage.style.color = "red";
         }
 
-        // Button wieder aktivieren
+        // Button zurücksetzen
         submitButton.disabled = false;
-        submitButton.style.backgroundColor = "#007bff";
+        submitButton.innerText = "Absenden";
     });
 });
