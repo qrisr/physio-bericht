@@ -1,109 +1,57 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("abschlussbericht-form");
-    const submitButton = document.getElementById("submit-button");
-    const statusMessage = document.getElementById("status-message");
-    const datumField = document.getElementById("datum");
-    const zielField = document.getElementById("ziel");
-    const begruendungContainer = document.getElementById("begruendung-container");
-    const begruendungField = document.getElementById("begruendung");
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physio Abschlussbericht</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-    // **📌 Automatisches Setzen des aktuellen Datums**
-    function setDefaultDateTime() {
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Zeitzonen-Korrektur
-        datumField.value = now.toISOString().slice(0, 16);
-    }
-    setDefaultDateTime();
+    <form id="physioForm">
+        <img src="https://www.physiozentrum.ch/static/img/logo_physiozentrum.svg" alt="Physiozentrum Logo" class="logo">
+        <h2>Abschlussbericht erstellen</h2>
 
-    // **📌 Dynamische Anzeige des Begründungsfelds**
-    function toggleBegruendungField() {
-        console.log("Ziel geändert auf:", zielField.value);
-        if (zielField.value === "Ziel nicht erreicht") {
-            begruendungContainer.style.display = "block"; // Zeigen
-        } else {
-            begruendungContainer.style.display = "none"; // Verstecken
-            begruendungField.value = ""; // Feld zurücksetzen
-        }
-    }
-    zielField.addEventListener("change", toggleBegruendungField);
-    toggleBegruendungField(); // Beim Laden prüfen
+        <label for="datum">Datum:</label>
+        <input type="datetime-local" id="datum" name="datum" required>
 
-    // **📌 Formular-Absenden mit Webhook & Pop-up**
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        submitButton.disabled = true;
-        submitButton.innerText = "⏳ Wird gesendet...";
-        statusMessage.innerHTML = "⏳ Anfrage wurde gesendet. Bitte warten...";
-        statusMessage.style.color = "black";
+        <label for="ziel">Physiotherapie-Ziel:</label>
+        <select id="ziel" name="ziel">
+            <option value="Ziel erreicht" class="option-green">✅ Ziel erreicht</option>
+            <option value="Ziel nicht erreicht" class="option-red">❌ Ziel nicht erreicht</option>
+        </select>
 
-        // **📌 Formulardaten sammeln**
-        const formData = {
-            datum: datumField.value,
-            ziel: zielField.value,
-            compliance: document.getElementById("compliance").value,
-            ziel_text: document.getElementById("ziel-text").value,
-            hypothese: document.getElementById("hypothese").value,
-            begruendung: begruendungField.value || null
-        };
+        <label for="compliance">Compliance:</label>
+        <select id="compliance" name="compliance">
+            <option value="Ja" class="option-green">✅ Ja</option>
+            <option value="Nein" class="option-red">❌ Nein</option>
+        </select>
 
-        try {
-            const response = await fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            });
+        <label for="ziel_text">Text Zieleingabe:</label>
+        <textarea id="ziel_text" name="ziel_text" placeholder="Patient will wieder Fahrrad fahren"></textarea>
 
-            if (!response.ok) {
-                throw new Error(`Fehler beim Senden! Status: ${response.status}`);
-            }
+        <label for="hypothese">Text Hypothese:</label>
+        <textarea id="hypothese" name="hypothese" placeholder="Degenerative Veränderungen im Kniegelenk führten zu Schmerzen"></textarea>
 
-            const responseData = await response.json();
+        <div id="begruendungDiv" class="hidden">
+            <label for="begruendung">Begründung für Nicht-Erreichung des Ziels:</label>
+            <textarea id="begruendung" name="begruendung" placeholder="Patient hat eine zusätzliche Erkrankung"></textarea>
+        </div>
 
-            if (!responseData || !responseData.content) {
-                throw new Error("Ungültige Antwort erhalten.");
-            }
+        <button id="submitButton" type="submit">Absenden</button>
 
-            // **Antwort erhalten – jetzt Pop-up öffnen**
-            const resultWindow = window.open("", "_blank", "width=600,height=400");
-            resultWindow.document.write(`
-                <html>
-                <head>
-                    <title>Analyse</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        h2 { color: #333; }
-                        p { font-size: 16px; line-height: 1.5; }
-                        button { 
-                            background-color: #007bff; 
-                            color: white; 
-                            border: none; 
-                            padding: 10px 15px; 
-                            cursor: pointer; 
-                            margin-top: 20px; 
-                        }
-                        button:hover { background-color: #0056b3; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Automatisch generierte Analyse</h2>
-                    <p>${responseData.content || "Keine Antwort erhalten."}</p>
-                    <button onclick="window.close()">Schliessen</button>
-                </body>
-                </html>
-            `);
+        <!-- Statusmeldung -->
+        <p id="statusMessage" style="text-align: center; font-weight: bold; margin-top: 10px;"></p>
 
-            // **📌 Statusmeldung aktualisieren**
-            statusMessage.innerHTML = "✅ Ergebnis in neuem Fenster!";
-            statusMessage.style.color = "green";
+        <!-- Neues Feld für die ChatGPT-Antwort -->
+        <div id="chatResponseContainer" class="hidden">
+            <label>Automatisch generierte Analyse:</label>
+            <div id="chatResponse" class="chat-box">⏳ Antwort wird generiert...</div>
+        </div>
 
-        } catch (error) {
-            console.error("Fehler:", error);
-            statusMessage.innerHTML = "❌ Fehler beim Senden!";
-            statusMessage.style.color = "red";
-        }
+    </form>
 
-        // **📌 Button zurücksetzen**
-        submitButton.disabled = false;
-        submitButton.innerText = "Absenden";
-    });
-});
+    <script src="script.js"></script>
+
+</body>
+</html>
