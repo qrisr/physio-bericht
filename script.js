@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        // Button und Status anpassen
+        // Button-Status anpassen
         submitButton.disabled = true;
         submitButton.style.backgroundColor = "#0056b3";
         statusMessage.innerHTML = "⏳ Anfrage wurde gesendet. Bitte warten...";
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         try {
-            const response = await fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", {
+            const response = await fetch("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
