@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let zielSelect = document.getElementById("ziel");
     let begruendungDiv = document.getElementById("begruendungDiv");
     let zielStatus = document.getElementById("zielStatus");
+    let complianceSelect = document.getElementById("compliance");
     let datumFeld = document.getElementById("datum");
 
     // Datum & Zeit vorausfüllen
@@ -22,7 +23,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Event Listener für Änderungen am Dropdown-Menü
+    // Compliance-Farbwechsel
+    complianceSelect.addEventListener("change", function () {
+        if (complianceSelect.value === "Ja") {
+            complianceSelect.className = "compliance-yes";
+        } else {
+            complianceSelect.className = "compliance-no";
+        }
+    });
+
+    // Event Listener für Dropdown-Änderungen
     zielSelect.addEventListener("change", updateZielStatus);
 
     // Webhook-Daten an N8N senden
@@ -32,6 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let formData = {
             datum: datumFeld.value,
             ziel: zielSelect.value,
+            compliance: complianceSelect.value,
             ziel_text: document.getElementById("ziel_text").value,
             hypothese: document.getElementById("hypothese").value,
             begruendung: document.getElementById("begruendung").value || null
@@ -44,13 +55,11 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Antwort von N8N:", data);
             alert("Formular erfolgreich gesendet!");
             document.getElementById("physioForm").reset();
             updateZielStatus();
         })
         .catch(error => {
-            console.error("Fehler:", error);
             alert("Fehler beim Senden des Formulars!");
         });
     });

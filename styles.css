@@ -48,7 +48,7 @@ input:focus, select:focus, textarea:focus {
     outline: none;
 }
 
-/* Farben für das Physiotherapie-Ziel */
+/* Physiotherapie-Ziel Farben */
 .select-container {
     display: flex;
     align-items: center;
@@ -70,6 +70,21 @@ input:focus, select:focus, textarea:focus {
 
 .red {
     background-color: #dc3545;
+}
+
+/* Compliance Dropdown */
+.compliance-yes {
+    background-color: #28a745;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.compliance-no {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
 }
 
 /* Absenden-Button */
@@ -95,4 +110,9 @@ button:hover {
     form {
         padding: 15px;
     }
+}
+
+/* Versteckte Felder */
+.hidden {
+    display: none;
 }

@@ -23,15 +23,21 @@
             <span id="zielStatus" class="status"></span>
         </div>
 
+        <label>Compliance:</label>
+        <select id="compliance" name="compliance">
+            <option value="Ja">Ja</option>
+            <option value="Nein">Nein</option>
+        </select>
+
         <label>Text Zieleingabe:</label>
-        <textarea id="ziel_text" name="ziel_text" placeholder="Beispiel: Patient will wieder Fahrrad fahren"></textarea>
+        <textarea id="ziel_text" name="ziel_text" placeholder="Patient will wieder Fahrrad fahren"></textarea>
 
         <label>Text Hypothese:</label>
-        <textarea id="hypothese" name="hypothese" placeholder="Beispiel: Degenerative Veränderungen im Kniegelenk führten zu Schmerzen"></textarea>
+        <textarea id="hypothese" name="hypothese" placeholder="Degenerative Veränderungen im Kniegelenk..."></textarea>
 
         <div id="begruendungDiv" class="hidden">
             <label>Begründung für Nicht-Erreichung des Ziels:</label>
-            <textarea id="begruendung" name="begruendung" placeholder="Beispiel: Patient hat eine zusätzliche Erkrankung"></textarea>
+            <textarea id="begruendung" name="begruendung" placeholder="Patient hat eine zusätzliche Erkrankung"></textarea>
         </div>
 
         <button type="submit">Absenden</button>
