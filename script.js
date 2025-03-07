@@ -4,26 +4,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusMessage = document.getElementById("status-message");
     const datumField = document.getElementById("datum");
     const zielField = document.getElementById("ziel");
-    const begruendungField = document.getElementById("begruendung-container"); // Container für Begründung
+    const begruendungContainer = document.getElementById("begruendung-container");
+    const begruendungField = document.getElementById("begruendung");
 
-    // **📌 Automatische Einfügen des aktuellen Datums**
+    // **📌 Automatisches Setzen des aktuellen Datums**
     function setDefaultDateTime() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Zeitzonen-Korrektur
         datumField.value = now.toISOString().slice(0, 16);
     }
-    setDefaultDateTime(); // Direkt ausführen
+    setDefaultDateTime();
 
     // **📌 Dynamische Anzeige des Begründungsfelds**
     function toggleBegruendungField() {
+        console.log("Ziel geändert auf:", zielField.value);
         if (zielField.value === "Ziel nicht erreicht") {
-            begruendungField.style.display = "block"; // Zeigen, wenn Ziel nicht erreicht
+            begruendungContainer.style.display = "block"; // Zeigen
         } else {
-            begruendungField.style.display = "none"; // Verstecken, wenn Ziel erreicht
+            begruendungContainer.style.display = "none"; // Verstecken
+            begruendungField.value = ""; // Feld zurücksetzen
         }
     }
     zielField.addEventListener("change", toggleBegruendungField);
-    toggleBegruendungField(); // Initial aufrufen
+    toggleBegruendungField(); // Beim Laden prüfen
 
     // **📌 Formular-Absenden mit Webhook & Pop-up**
     form.addEventListener("submit", async function (event) {
@@ -33,14 +36,14 @@ document.addEventListener("DOMContentLoaded", function () {
         statusMessage.innerHTML = "⏳ Anfrage wurde gesendet. Bitte warten...";
         statusMessage.style.color = "black";
 
-        // Formulardaten sammeln
+        // **📌 Formulardaten sammeln**
         const formData = {
             datum: datumField.value,
             ziel: zielField.value,
             compliance: document.getElementById("compliance").value,
             ziel_text: document.getElementById("ziel-text").value,
             hypothese: document.getElementById("hypothese").value,
-            begruendung: document.getElementById("begruendung")?.value || null
+            begruendung: begruendungField.value || null
         };
 
         try {
@@ -89,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </html>
             `);
 
-            // Statusmeldung aktualisieren
+            // **📌 Statusmeldung aktualisieren**
             statusMessage.innerHTML = "✅ Ergebnis in neuem Fenster!";
             statusMessage.style.color = "green";
 
@@ -99,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
             statusMessage.style.color = "red";
         }
 
-        // Button zurücksetzen
+        // **📌 Button zurücksetzen**
         submitButton.disabled = false;
         submitButton.innerText = "Absenden";
     });
