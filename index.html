@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Physio Abschlussbericht</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        label, select, input, textarea { display: block; margin-top: 10px; width: 100%; }
-        .hidden { display: none; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -43,42 +39,7 @@
         <button type="submit">Absenden</button>
     </form>
 
-    <script>
-        document.getElementById("ziel").addEventListener("change", function() {
-            let complianceDiv = document.getElementById("complianceDiv");
-            let begruendungDiv = document.getElementById("begruendungDiv");
-
-            if (this.value === "Ziel nicht erreicht") {
-                complianceDiv.classList.remove("hidden");
-                begruendungDiv.classList.remove("hidden");
-            } else {
-                complianceDiv.classList.add("hidden");
-                begruendungDiv.classList.add("hidden");
-            }
-        });
-
-        document.getElementById("physioForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            let formData = {
-                datum: document.getElementById("datum").value,
-                ziel: document.getElementById("ziel").value,
-                compliance: document.getElementById("compliance").value,
-                ziel_text: document.getElementById("ziel_text").value,
-                hypothese: document.getElementById("hypothese").value,
-                begruendung: document.getElementById("begruendung").value
-            };
-
-            fetch("https://your-n8n-webhook-url.com", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error("Fehler:", error));
-        });
-    </script>
+    <script src="script.js"></script>
 
 </body>
 </html>
