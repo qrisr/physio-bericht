@@ -8,32 +8,30 @@
 </head>
 <body>
 
-    <h2>Abschlussbericht erstellen</h2>
-
     <form id="physioForm">
+        <h2>Abschlussbericht erstellen</h2>
+
         <label>Datum:</label>
         <input type="datetime-local" id="datum" name="datum" required>
 
         <label>Physiotherapie-Ziel:</label>
-        <select id="ziel" name="ziel">
-            <option value="Ziel erreicht">Ziel erreicht</option>
-            <option value="Ziel nicht erreicht">Ziel nicht erreicht</option>
-        </select>
-
-        <div id="complianceDiv" class="hidden">
-            <label>Compliance:</label>
-            <input type="text" id="compliance" name="compliance">
+        <div class="select-container">
+            <select id="ziel" name="ziel">
+                <option value="Ziel erreicht">Ziel erreicht</option>
+                <option value="Ziel nicht erreicht">Ziel nicht erreicht</option>
+            </select>
+            <span id="zielStatus" class="status"></span>
         </div>
 
         <label>Text Zieleingabe:</label>
-        <textarea id="ziel_text" name="ziel_text"></textarea>
+        <textarea id="ziel_text" name="ziel_text" placeholder="Beispiel: Patient will wieder Fahrrad fahren"></textarea>
 
         <label>Text Hypothese:</label>
-        <textarea id="hypothese" name="hypothese"></textarea>
+        <textarea id="hypothese" name="hypothese" placeholder="Beispiel: Degenerative Veränderungen im Kniegelenk führten zu Schmerzen"></textarea>
 
         <div id="begruendungDiv" class="hidden">
             <label>Begründung für Nicht-Erreichung des Ziels:</label>
-            <textarea id="begruendung" name="begruendung"></textarea>
+            <textarea id="begruendung" name="begruendung" placeholder="Beispiel: Patient hat eine zusätzliche Erkrankung"></textarea>
         </div>
 
         <button type="submit">Absenden</button>

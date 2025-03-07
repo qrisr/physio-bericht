@@ -1,4 +1,4 @@
-/* styles.css - Modernes UX/UI Design für das Formular */
+/* styles.css - Modernes UX/UI Design */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
@@ -20,6 +20,7 @@ form {
 h2 {
     text-align: center;
     color: #333;
+    margin-bottom: 20px;
 }
 
 /* Allgemeine Label-Styles */
@@ -30,7 +31,7 @@ label {
     color: #555;
 }
 
-/* Eingabefelder schön machen */
+/* Eingabefelder */
 input, select, textarea {
     width: 100%;
     padding: 12px;
