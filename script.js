@@ -2,7 +2,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("abschlussbericht-form");
     const submitButton = document.getElementById("submit-button");
     const statusMessage = document.getElementById("status-message");
+    const datumField = document.getElementById("datum");
+    const zielField = document.getElementById("ziel");
+    const begruendungField = document.getElementById("begruendung-container"); // Container für Begründung
 
+    // **📌 Automatische Einfügen des aktuellen Datums**
+    function setDefaultDateTime() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Zeitzonen-Korrektur
+        datumField.value = now.toISOString().slice(0, 16);
+    }
+    setDefaultDateTime(); // Direkt ausführen
+
+    // **📌 Dynamische Anzeige des Begründungsfelds**
+    function toggleBegruendungField() {
+        if (zielField.value === "Ziel nicht erreicht") {
+            begruendungField.style.display = "block"; // Zeigen, wenn Ziel nicht erreicht
+        } else {
+            begruendungField.style.display = "none"; // Verstecken, wenn Ziel erreicht
+        }
+    }
+    zielField.addEventListener("change", toggleBegruendungField);
+    toggleBegruendungField(); // Initial aufrufen
+
+    // **📌 Formular-Absenden mit Webhook & Pop-up**
     form.addEventListener("submit", async function (event) {
         event.preventDefault();
         submitButton.disabled = true;
@@ -12,8 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Formulardaten sammeln
         const formData = {
-            datum: document.getElementById("datum").value,
-            ziel: document.getElementById("ziel").value,
+            datum: datumField.value,
+            ziel: zielField.value,
             compliance: document.getElementById("compliance").value,
             ziel_text: document.getElementById("ziel-text").value,
             hypothese: document.getElementById("hypothese").value,
