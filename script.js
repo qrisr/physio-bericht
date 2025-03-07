@@ -67,13 +67,18 @@ document.addEventListener("DOMContentLoaded", function () {
         chatResponseContainer.classList.remove("hidden");
         chatResponse.innerHTML = "⏳ Antwort wird generiert...";
 
-        // **N8N Webhook-Request mit Timeout**
-        fetchWithTimeout("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
+        // **🚀 Neue Test Webhook-URL**
+        fetchWithTimeout("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         }, 60000)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(`Server Error ${response.status}: ${text}`) });
+            }
+            return response.json();
+        })
         .then(data => {
             console.log("Antwort von N8N:", data);
 
@@ -104,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             statusMessage.textContent = "❌ Fehler beim Senden der Anfrage!";
             statusMessage.style.color = "red";
             chatResponse.innerHTML = "⚠️ Fehler beim Laden der Antwort.";
-            console.error("Fehler:", error);
+            console.error("Fehler-Details:", error);
         });
     });
 
