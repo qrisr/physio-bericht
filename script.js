@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
             begruendung: document.getElementById("begruendung").value || null
         };
 
-        fetch("https://your-n8n-webhook-url.com", {
+        fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { // <-- Hier die Webhook-URL eingefügt
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Formular erfolgreich gesendet!");
             form.reset();
             updateZielStatus();
+            window.location.href = "result.html"; // Weiterleitung zur HTML-Seite mit Antwort
         })
         .catch(error => {
             alert("Fehler beim Senden des Formulars!");
