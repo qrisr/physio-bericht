@@ -15,6 +15,14 @@ form {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Logo */
+.logo {
+    max-width: 150px;
+    margin: 0 auto 20px;
+    display: block;
 }
 
 h2 {
@@ -29,6 +37,7 @@ label {
     margin-top: 12px;
     font-weight: bold;
     color: #555;
+    text-align: left;
 }
 
 /* Eingabefelder */
@@ -39,7 +48,8 @@ input, select, textarea {
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
-    background-color: #f9f9f9;
+    background-color: white;
+    appearance: none;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -48,15 +58,13 @@ input:focus, select:focus, textarea:focus {
     outline: none;
 }
 
-/* Physiotherapie-Ziel & Compliance Farben */
-.green {
-    background-color: #28a745 !important;
-    color: white;
+/* Dropdown-Icons */
+.option-green {
+    color: green;
 }
 
-.red {
-    background-color: #dc3545 !important;
-    color: white;
+.option-red {
+    color: red;
 }
 
 /* Absenden-Button */
@@ -71,6 +79,7 @@ button {
     cursor: pointer;
     margin-top: 20px;
     transition: 0.3s;
+    font-weight: bold;
 }
 
 button:hover {
