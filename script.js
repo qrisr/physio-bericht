@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chatResponseContainer.classList.remove("hidden");
         chatResponse.innerHTML = "⏳ Antwort wird generiert...";
 
-        // **🚀 Neue Test Webhook-URL**
+        // **🚀 Production Webhook-URL**
         fetchWithTimeout("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -81,12 +81,17 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(text => {
             try {
+                // **Prüfen, ob die Antwort JSON oder HTML ist**
+                if (text.startsWith("<")) {
+                    throw new Error("Server hat eine HTML-Antwort gesendet, statt JSON.");
+                }
+
                 const data = JSON.parse(text); // JSON umwandeln
                 console.log("Antwort von N8N:", data);
-        
+
                 // 🔹 Daten aus der Antwort extrahieren, falls sie verschachtelt sind
                 let report = data.content || data.analyse || data.ergebnis; 
-        
+
                 if (report) {
                     let analysisHTML = `
                         <h3>Abschlussanalyse</h3>
@@ -103,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <p><strong>Allgemein:</strong> ${report.empfehlungen?.allgemein || "N/A"}</p>
                         <p><strong>Spezifisch:</strong> ${report.empfehlungen?.spezifisch || "N/A"}</p>
                     `;
-        
+
                     chatResponse.innerHTML = analysisHTML;
                     statusMessage.textContent = "✅ Antwort erhalten!";
                 } else {
