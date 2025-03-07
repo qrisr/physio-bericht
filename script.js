@@ -2,7 +2,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     let zielSelect = document.getElementById("ziel");
     let begruendungDiv = document.getElementById("begruendungDiv");
-    let zielStatus = document.getElementById("zielStatus");
     let complianceSelect = document.getElementById("compliance");
     let datumFeld = document.getElementById("datum");
 
@@ -10,26 +9,28 @@ document.addEventListener("DOMContentLoaded", function () {
     let jetzt = new Date();
     datumFeld.value = jetzt.toISOString().slice(0, 16);
 
-    // Funktion zur Aktualisierung der Statusfarbe & Emoji
-    function updateZielStatus() {
-        if (zielSelect.value === "Ziel erreicht") {
-            zielStatus.textContent = "✅ Ziel erreicht";
-            zielStatus.className = "status green";
-            begruendungDiv.classList.add("hidden");
+    // Funktion zur Aktualisierung der Dropdown-Farben
+    function updateDropdownColor(selectElement) {
+        if (selectElement.value === "Ziel erreicht" || selectElement.value === "Ja") {
+            selectElement.className = "green";
         } else {
-            zielStatus.textContent = "❌ Ziel nicht erreicht";
-            zielStatus.className = "status red";
+            selectElement.className = "red";
+        }
+    }
+
+    // Ziel-Status aktualisieren & Feld "Begründung" ein-/ausblenden
+    function updateZielStatus() {
+        updateDropdownColor(zielSelect);
+        if (zielSelect.value === "Ziel nicht erreicht") {
             begruendungDiv.classList.remove("hidden");
+        } else {
+            begruendungDiv.classList.add("hidden");
         }
     }
 
     // Compliance-Farbwechsel
     complianceSelect.addEventListener("change", function () {
-        if (complianceSelect.value === "Ja") {
-            complianceSelect.className = "compliance-yes";
-        } else {
-            complianceSelect.className = "compliance-no";
-        }
+        updateDropdownColor(complianceSelect);
     });
 
     // Event Listener für Dropdown-Änderungen

@@ -15,25 +15,22 @@
         <input type="datetime-local" id="datum" name="datum" required>
 
         <label>Physiotherapie-Ziel:</label>
-        <div class="select-container">
-            <select id="ziel" name="ziel">
-                <option value="Ziel erreicht">Ziel erreicht</option>
-                <option value="Ziel nicht erreicht">Ziel nicht erreicht</option>
-            </select>
-            <span id="zielStatus" class="status"></span>
-        </div>
+        <select id="ziel" name="ziel">
+            <option value="Ziel erreicht" class="green">✅ Ziel erreicht</option>
+            <option value="Ziel nicht erreicht" class="red">❌ Ziel nicht erreicht</option>
+        </select>
 
         <label>Compliance:</label>
         <select id="compliance" name="compliance">
-            <option value="Ja">Ja</option>
-            <option value="Nein">Nein</option>
+            <option value="Ja" class="green">✅ Ja</option>
+            <option value="Nein" class="red">❌ Nein</option>
         </select>
 
         <label>Text Zieleingabe:</label>
         <textarea id="ziel_text" name="ziel_text" placeholder="Patient will wieder Fahrrad fahren"></textarea>
 
         <label>Text Hypothese:</label>
-        <textarea id="hypothese" name="hypothese" placeholder="Degenerative Veränderungen im Kniegelenk..."></textarea>
+        <textarea id="hypothese" name="hypothese" placeholder="Degenerative Veränderungen im Kniegelenk führten zu Schmerzen"></textarea>
 
         <div id="begruendungDiv" class="hidden">
             <label>Begründung für Nicht-Erreichung des Ziels:</label>
