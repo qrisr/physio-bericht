@@ -77,31 +77,40 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) {
                 return response.text().then(text => { throw new Error(`Server Error ${response.status}: ${text}`) });
             }
-            return response.json();
+            return response.text(); // Erst als Text abrufen
         })
-        .then(data => {
-            console.log("Antwort von N8N:", data);
-
-            if (data.content) {
-                let report = data.content.abschlussanalyse;
-                let analysisHTML = `
-                    <h3>Abschlussanalyse</h3>
-                    <p><strong>Ziel:</strong> ${report.ziel}</p>
-                    <p><strong>Compliance:</strong> ${report.compliance}</p>
-                    <p><strong>Zielbeschreibung:</strong> ${report.zielbeschreibung}</p>
-                    <p><strong>Hypothese:</strong> ${report.hypothese}</p>
-                    <p><strong>Begründung:</strong> ${report.begründung}</p>
-                    <h3>Analyse</h3>
-                    <p><strong>Umsetzung:</strong> ${report.analyse.umsetzung}</p>
-                    <p><strong>Schlussfolgerung:</strong> ${report.analyse.schlussfolgerung}</p>
-                `;
-                
-                chatResponse.innerHTML = analysisHTML; // Antwort ins HTML einfügen
-                statusMessage.textContent = "✅ Antwort erhalten!";
-            } else {
-                chatResponse.innerHTML = "⚠️ Fehler: Keine Antwort erhalten.";
-                statusMessage.textContent = "❌ Fehler: Antwort konnte nicht geladen werden.";
-                statusMessage.style.color = "red";
+        .then(text => {
+            try {
+                const data = JSON.parse(text); // JSON umwandeln
+                console.log("Antwort von N8N:", data);
+        
+                // 🔹 Daten aus der Antwort extrahieren, falls sie verschachtelt sind
+                let report = data.content || data.analyse || data.ergebnis; 
+        
+                if (report) {
+                    let analysisHTML = `
+                        <h3>Abschlussanalyse</h3>
+                        <p><strong>Ziel:</strong> ${report.ziel_uebersicht?.ziel || "N/A"}</p>
+                        <p><strong>Compliance:</strong> ${report.ziel_uebersicht?.compliance || "N/A"}</p>
+                        <p><strong>Zielbeschreibung:</strong> ${report.ziel_uebersicht?.zielbeschreibung || "N/A"}</p>
+                        <p><strong>Hypothese:</strong> ${report.ziel_uebersicht?.hypothese || "N/A"}</p>
+                        <p><strong>Begründung:</strong> ${report.ziel_uebersicht?.begruendung || "N/A"}</p>
+                        <h3>Analyse</h3>
+                        <p><strong>Ergebnis:</strong> ${report.ergebnis?.status || "N/A"}</p>
+                        <p><strong>Analyse:</strong> ${report.analyse?.analyse || "N/A"}</p>
+                        <p><strong>Schlussfolgerung:</strong> ${report.analyse?.schlussfolgerung || "N/A"}</p>
+                        <h3>Empfehlungen</h3>
+                        <p><strong>Allgemein:</strong> ${report.empfehlungen?.allgemein || "N/A"}</p>
+                        <p><strong>Spezifisch:</strong> ${report.empfehlungen?.spezifisch || "N/A"}</p>
+                    `;
+        
+                    chatResponse.innerHTML = analysisHTML;
+                    statusMessage.textContent = "✅ Antwort erhalten!";
+                } else {
+                    throw new Error("Leere oder ungültige Antwort erhalten.");
+                }
+            } catch (error) {
+                throw new Error("Ungültige JSON-Antwort: " + text);
             }
         })
         .catch(error => {
