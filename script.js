@@ -26,6 +26,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Event Listener für Dropdown-Änderungen
     zielSelect.addEventListener("change", updateZielStatus);
 
+    // Funktion für Fetch mit Timeout (60 Sekunden)
+    async function fetchWithTimeout(resource, options = {}, timeout = 60000) { // 60 Sekunden Timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+        }
+    }
+
     // Webhook-Daten an N8N senden
     form.addEventListener("submit", function (event) {
         event.preventDefault();
@@ -50,12 +67,12 @@ document.addEventListener("DOMContentLoaded", function () {
         chatResponseContainer.classList.remove("hidden");
         chatResponse.innerHTML = "⏳ Antwort wird generiert...";
 
-        // 🚀 **Neue Production Webhook-URL in N8N**
-        fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
+        // **N8N Webhook-Request mit Timeout**
+        fetchWithTimeout("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
-        })
+        }, 60000)
         .then(response => response.json())
         .then(data => {
             console.log("Antwort von N8N:", data);
