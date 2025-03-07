@@ -10,7 +10,6 @@
 
     <form id="physioForm">
         <img src="https://www.physiozentrum.ch/static/img/logo_physiozentrum.svg" alt="Physiozentrum Logo" class="logo">
-
         <h2>Abschlussbericht erstellen</h2>
 
         <label>Datum:</label>
@@ -39,7 +38,11 @@
             <textarea id="begruendung" name="begruendung" placeholder="Patient hat eine zusätzliche Erkrankung"></textarea>
         </div>
 
-        <button type="submit">Absenden</button>
+        <button id="submitButton" type="submit">Absenden</button>
+
+        <!-- Statusmeldung unter dem Button -->
+        <p id="statusMessage" style="text-align: center; font-weight: bold; margin-top: 10px;"></p>
+
     </form>
 
     <script src="script.js"></script>

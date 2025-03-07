@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let complianceSelect = document.getElementById("compliance");
     let datumFeld = document.getElementById("datum");
     let form = document.getElementById("physioForm");
+    let submitButton = document.getElementById("submitButton"); // Button referenzieren
+    let statusMessage = document.getElementById("statusMessage"); // Statusnachricht unter dem Formular
 
     // Datum & Zeit vorausfüllen
     let jetzt = new Date();
@@ -35,20 +37,36 @@ document.addEventListener("DOMContentLoaded", function () {
             begruendung: document.getElementById("begruendung").value || null
         };
 
-        fetch("https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { // <-- Hier die Webhook-URL eingefügt
+        // Button-Text auf "Senden..." ändern
+        submitButton.textContent = "⏳ Webhook wird gesendet...";
+        submitButton.disabled = true;
+
+        fetch("https://contextery.app.n8n.cloud/webhook-test/15fd0ca7-39c2-4a71-a9c8-652668fe5cae", { // <-- Test-Webhook-URL
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         })
         .then(response => response.json())
         .then(data => {
-            alert("Formular erfolgreich gesendet!");
+            submitButton.textContent = "✅ Webhook abgesendet"; // Button-Bestätigung
+            submitButton.style.backgroundColor = "#28a745"; // Button grün färben
+
+            // Statusmeldung unter dem Formular anzeigen
+            statusMessage.textContent = "✅ Webhook wurde erfolgreich an N8N gesendet!";
+            statusMessage.style.color = "green";
+
+            // Optional: Formular zurücksetzen
             form.reset();
             updateZielStatus();
-            window.location.href = "result.html"; // Weiterleitung zur HTML-Seite mit Antwort
         })
         .catch(error => {
-            alert("Fehler beim Senden des Formulars!");
+            submitButton.textContent = "⚠️ Fehler beim Senden";
+            submitButton.style.backgroundColor = "#dc3545"; // Button rot färben
+            submitButton.disabled = false;
+
+            // Fehlermeldung anzeigen
+            statusMessage.textContent = "❌ Fehler beim Senden des Webhooks!";
+            statusMessage.style.color = "red";
             console.error("Fehler:", error);
         });
     });
