@@ -1,4 +1,3 @@
-// script.js - UX-Funktionen & Webhook-Anbindung
 document.addEventListener("DOMContentLoaded", function () {
     let zielSelect = document.getElementById("ziel");
     let begruendungDiv = document.getElementById("begruendungDiv");
@@ -10,11 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let chatResponseContainer = document.getElementById("chatResponseContainer");
     let chatResponse = document.getElementById("chatResponse");
 
-    // Datum & Zeit vorausfüllen
+    // 📌 Datum & Zeit vorausfüllen
     let jetzt = new Date();
     datumFeld.value = jetzt.toISOString().slice(0, 16);
 
-    // Ziel-Status aktualisieren & Feld "Begründung" ein-/ausblenden
+    // 📌 Ziel-Status aktualisieren & Feld "Begründung" ein-/ausblenden
     function updateZielStatus() {
         if (zielSelect.value === "Ziel nicht erreicht") {
             begruendungDiv.classList.remove("hidden");
@@ -22,12 +21,13 @@ document.addEventListener("DOMContentLoaded", function () {
             begruendungDiv.classList.add("hidden");
         }
     }
-
-    // Event Listener für Dropdown-Änderungen
     zielSelect.addEventListener("change", updateZielStatus);
 
-    // Funktion für Fetch mit Timeout (60 Sekunden)
-    async function fetchWithTimeout(resource, options = {}, timeout = 60000) { // 60 Sekunden Timeout
+    // 📌 Webhook URL für n8n
+    const WEBHOOK_URL = "https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae";
+
+    // 📌 Funktion für Fetch mit Timeout (60s)
+    async function fetchWithTimeout(resource, options = {}, timeout = 60000) { 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
         try {
@@ -43,10 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // **🚀 Webhook-URL**
-    const WEBHOOK_URL = "https://contextery.app.n8n.cloud/webhook/15fd0ca7-39c2-4a71-a9c8-652668fe5cae";
-
-    // Webhook-Daten an N8N senden
+    // 📌 Webhook-Daten an n8n senden
     form.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -59,42 +56,32 @@ document.addEventListener("DOMContentLoaded", function () {
             begruendung: document.getElementById("begruendung").value || null
         };
 
-        // Button farblich ändern, aber Text bleibt gleich
+        // Button & Status aktualisieren
         submitButton.style.backgroundColor = "#007bff";
-
-        // Statusmeldung anzeigen
         statusMessage.textContent = "⏳ Anfrage wurde gesendet. Bitte warten...";
         statusMessage.style.color = "#333";
-
-        // Antwortfeld sichtbar machen
         chatResponseContainer.classList.remove("hidden");
         chatResponse.innerHTML = "⏳ Antwort wird generiert...";
 
-        // Anfrage an den Webhook senden
+        // 📌 Anfrage an den Webhook senden
         fetchWithTimeout(WEBHOOK_URL, { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         }, 60000)
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => { 
-                    console.error(`❌ Server Error ${response.status}:`, text);
-                    throw new Error(`Server Error ${response.status}: ${text}`);
-                });
-            }
-            return response.text(); // Erst als Text abrufen
-        })
+        .then(response => response.text()) // Erst als Text abrufen
         .then(text => {
+            console.log("🔹 Rohantwort von N8N:", text); // Debugging Log
+
             try {
                 if (text.startsWith("<")) {
-                    throw new Error("❌ Fehler: N8N hat HTML statt JSON zurückgegeben.");
+                    throw new Error("❌ Fehler: HTML statt JSON erhalten.");
                 }
-                const data = JSON.parse(text); // JSON umwandeln
-                console.log("✅ Antwort von N8N:", data);
 
-                // **💡 Falls "Abschlussanalyse" existiert, dort suchen**
-                let report = data.content?.Abschlussanalyse || data.content;  
+                const data = JSON.parse(text); // JSON umwandeln
+                console.log("✅ JSON-Parsing erfolgreich:", data);
+
+                let report = data.content?.Abschlussanalyse || data.content;
 
                 if (report) {
                     let analysisHTML = `
@@ -117,7 +104,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error("❌ Fehler: Leere oder ungültige JSON-Antwort.");
                 }
             } catch (error) {
-                throw new Error("❌ Fehlerhafte JSON-Antwort: " + text);
+                console.error("🚨 Fehler beim JSON-Parsing:", error);
+                chatResponse.innerHTML = `<p style="color:red;">⚠️ Fehler beim Verarbeiten der Antwort!</p>`;
             }
         })
         .catch(error => {
@@ -128,6 +116,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Status direkt beim Laden setzen
     updateZielStatus();
 });
