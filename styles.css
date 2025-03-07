@@ -70,7 +70,7 @@ input:focus, select:focus, textarea:focus {
 /* Absenden-Button */
 button {
     width: 100%;
-    background-color: #007bff;
+    background-color: #0056b3; /* Dunkleres Blau für bessere Sichtbarkeit */
     color: white;
     padding: 14px;
     font-size: 18px;
@@ -83,7 +83,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #003d80; /* Noch dunkler beim Hover */
 }
 
 /* Mobile-Optimierung */
