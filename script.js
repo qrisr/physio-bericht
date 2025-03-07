@@ -69,20 +69,23 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         }, 60000)
-        .then(response => response.text()) // Erst als Text abrufen
+        .then(response => response.text()) // Rohtext abrufen
         .then(text => {
             console.log("🔹 Rohantwort von N8N:", text); // Debugging Log
-
+        
             try {
-                if (text.startsWith("<")) {
-                    throw new Error("❌ Fehler: HTML statt JSON erhalten.");
+                if (!text.trim()) {
+                    throw new Error("❌ Fehler: Leere Antwort von N8N erhalten!");
                 }
-
-                const data = JSON.parse(text); // JSON umwandeln
-                console.log("✅ JSON-Parsing erfolgreich:", data);
-
-                let report = data.content?.Abschlussanalyse || data.content;
-
+        
+                // Versuchen, das JSON sicher zu parsen
+                const safeText = text.replace(/(\r\n|\n|\r)/gm, ""); // Zeilenumbrüche entfernen
+                const jsonData = JSON.parse(safeText);
+        
+                console.log("✅ JSON-Parsing erfolgreich:", jsonData);
+        
+                let report = jsonData.content?.Abschlussanalyse || jsonData.content;
+        
                 if (report) {
                     let analysisHTML = `
                         <h3>📊 Abschlussanalyse</h3>
@@ -97,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <h3>📝 Schlussfolgerung</h3>
                         <p>${report.Schlussempfehlung?.Verbesserungsvorschläge || "Keine Empfehlungen"}</p>
                     `;
-
+        
                     chatResponse.innerHTML = analysisHTML;
                     statusMessage.textContent = "✅ Antwort erhalten!";
                 } else {
@@ -106,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 console.error("🚨 Fehler beim JSON-Parsing:", error);
                 chatResponse.innerHTML = `<p style="color:red;">⚠️ Fehler beim Verarbeiten der Antwort!</p>`;
+                console.log("🔍 Rohantwort als Fallback:", text); // Logge die Antwort für Debugging
             }
         })
         .catch(error => {
